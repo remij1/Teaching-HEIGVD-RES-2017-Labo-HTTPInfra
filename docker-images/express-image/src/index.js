@@ -14,7 +14,7 @@ app.listen(3000, function () {
 
 function getHackedComputers() {
     var nbOfComputer = chance.integer({
-        min: 1, max: 10
+        min: 0, max: 10
     });
 
     var computers = [];
