@@ -5,7 +5,9 @@ var express = require('express');
 var app = express();
 
 app.get('/', function (req, res) {
-    res.send(getHackedComputers());
+    var comp = getHackedComputers();
+    res.send(comp);
+    console.log(comp);
 });
 
 app.listen(3000, function () {

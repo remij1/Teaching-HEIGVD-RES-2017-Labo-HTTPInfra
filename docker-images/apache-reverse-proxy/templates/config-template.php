@@ -1,15 +1,28 @@
 <?php
-    $static_app = getenv('STATIC_APP');
-    $dynamic_app = getenv('DYNAMIC_APP');
+    $static_app_1 = getenv('STATIC_APP_1');
+    $static_app_2 = getenv('STATIC_APP_2');
+    $dynamic_app_1 = getenv('DYNAMIC_APP_1');
+    $dynamic_app_2 = getenv('DYNAMIC_APP_2');
 ?>
 
 <VirtualHost *:80>
     ServerName demo.res.ch
 
-    ProxyPass "/api/computers/" "http://<?php print $dynamic_app ?>:3000/"
-    ProxyPassReverse "/api/computers/" "http://<?php print $dynamic_app ?>:3000/"
+    <Proxy "balancer://dynamic">
+        BalancerMember "http://<?php print $dynamic_app_1 ?>:3000"
+        BalancerMember "http://<?php print $dynamic_app_2 ?>:3000"
+        ProxySet lbmethod=bytraffic
+    </Proxy>
 
+    <Proxy "balancer://static">
+        BalancerMember "http://<?php print $static_app_1 ?>:80"
+        BalancerMember "http://<?php print $static_app_2 ?>:80"
+        ProxySet lbmethod=bytraffic
+    </Proxy>
 
-    ProxyPass "/" "http://<?php print $static_app ?>:80/"
-    ProxyPassReverse "/" "http://<?php print $static_app ?>:80/"
+    ProxyPass "/api/computers/" "balancer://dynamic"
+    ProxyPassReverse "/api/computers/" "balancer://dynamic"
+
+    ProxyPass "/" "balancer://static"
+    ProxyPassReverse "/" "balancer://static"
  </VirtualHost>
