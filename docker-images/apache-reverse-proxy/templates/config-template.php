@@ -6,13 +6,6 @@
 ?>
 
 <VirtualHost *:80>
-    ServerName demo.res.ch
-
-    <Proxy "balancer://dynamic">
-        BalancerMember "http://<?php print $dynamic_app_1 ?>:3000"
-        BalancerMember "http://<?php print $dynamic_app_2 ?>:3000"
-        ProxySet lbmethod=bytraffic
-    </Proxy>
 
     <Proxy "balancer://static">
         BalancerMember "http://<?php print $static_app_1 ?>:80"
@@ -20,9 +13,17 @@
         ProxySet lbmethod=bytraffic
     </Proxy>
 
-    ProxyPass "/api/computers/" "balancer://dynamic"
-    ProxyPassReverse "/api/computers/" "balancer://dynamic"
+    <Proxy "balancer://dynamic">
+        BalancerMember "http://<?php print $dynamic_app_1 ?>:3000"
+        BalancerMember "http://<?php print $dynamic_app_2 ?>:3000"
+        ProxySet lbmethod=bytraffic
+    </Proxy>
 
-    ProxyPass "/" "balancer://static"
-    ProxyPassReverse "/" "balancer://static"
+    ServerName demo.res.ch
+
+    ProxyPass "/api/computers/" "balancer://dynamic/"
+    ProxyPassReverse "/api/computers/" "balancer://dynamic/"
+
+    ProxyPass "/" "balancer://static/"
+    ProxyPassReverse "/" "balancer://static/"
  </VirtualHost>
