@@ -6,10 +6,11 @@
 ?>
 
 <VirtualHost *:80>
+    Header add Set-Cookie "ROUTEID=.%{BALANCER_WORKER_ROUTE}e; path=/" env=BALANCER_ROUTE_CHANGED
 
     <Proxy "balancer://static">
-        BalancerMember "http://<?php print $static_app_1 ?>:80"
-        BalancerMember "http://<?php print $static_app_2 ?>:80"
+        BalancerMember "http://<?php print $static_app_1 ?>:80" route=1
+        BalancerMember "http://<?php print $static_app_2 ?>:80" route=2
         ProxySet lbmethod=bytraffic
     </Proxy>
 
@@ -24,6 +25,6 @@
     ProxyPass "/api/computers/" "balancer://dynamic/"
     ProxyPassReverse "/api/computers/" "balancer://dynamic/"
 
-    ProxyPass "/" "balancer://static/"
+    ProxyPass "/" "balancer://static/" stickysession=ROUTEID
     ProxyPassReverse "/" "balancer://static/"
  </VirtualHost>
